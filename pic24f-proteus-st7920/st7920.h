@@ -7,21 +7,23 @@
 
 #define LCD_INTERFACE   MODE_SERIAL
 
-#define LCD_SID_PORT     LATB  //SID=RW
-#define LCD_SID_PIN      13
-#define LCD_SCLK_PORT    LATB  //SCLK=E
-#define LCD_SCLK_PIN     14
+#define LCD_SID_PORT     LATF  //SID=RW
+#define LCD_SID_PIN      2
+#define LCD_SCLK_PORT    LATF  //SCLK=E
+#define LCD_SCLK_PIN     3
 
-#define LCD_DATA_DDR     TRISE
-#define LCD_DATA_PIN     PORTE
-#define LCD_DATA_PORT    LATE
+#define LCD_DATA_DDR     TRISG
+#define LCD_DATA_PIN     PORTG
+#define LCD_DATA_PORT    LATG
 
-#define LCD_RS_PORT      LATB
-#define LCD_RS_PIN       12
-#define LCD_EN_PORT      LATB
-#define LCD_EN_PIN       14
-#define LCD_RW_PORT      LATB
-#define LCD_RW_PIN       13
+#define LCD_RS_PORT      LATF
+#define LCD_RS_PIN       1
+#define LCD_EN_PORT      LATF
+#define LCD_EN_PIN       3
+#define LCD_RW_PORT      LATF
+#define LCD_RW_PIN       2
+#define LCD_MODE_PORT    LATF
+#define LCD_MODE_PIN     0
 
 #define LCD_DATA_PORT_D7 LCD_DATA_PORT
 #define LCD_DATA_PORT_D6 LCD_DATA_PORT
@@ -41,8 +43,8 @@
 #define LCD_RW_HIGH()      LCD_RW_PORT |= (1<<LCD_RW_PIN)
 #define LCD_RW_LOW()       LCD_RW_PORT &=~(1<<LCD_RW_PIN)
 
-#define LCD_DATA_DDR_OUTPUT()  LCD_DATA_DDR = 0xff
-#define LCD_DATA_DDR_INPUT()   LCD_DATA_DDR = 0x00
+#define LCD_DATA_DDR_OUTPUT()  LCD_DATA_DDR = 0x00
+#define LCD_DATA_DDR_INPUT()   LCD_DATA_DDR = 0xff
 
 void LCD_clear(void);
 void LCD_init(void);

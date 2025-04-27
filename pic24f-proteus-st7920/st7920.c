@@ -1,49 +1,43 @@
 #include <xc.h>
 #include "st7920.h"
 
-void _delay_ms(unsigned int ms) {
-    unsigned int i, j;
-    for(i = 0; i < ms; i++) {
-        for(j = 0; j < 1000; j++) {
-            Nop();             // to-do: ajustar loop
-        }
-    }
-}
-
-void _delay_us(unsigned int ms) {
-    unsigned int i, j;
-    for(i = 0; i < ms; i++) {
-        for(j = 0; j < 1; j++) {
-            Nop();             // to-do: ajustar loop
-        }
-    }
-}
-
 void LCD_init(void)
 {
     LCD_DATA_DDR_OUTPUT();
-
-    _delay_ms(50);
+    TRISF = 0x00;
+    LATF = 0x00;
+    
+    LATFbits.LATF1 = 1; // RS
+    LATFbits.LATF4 = 1; // RST
+    LATFbits.LATF3 = 1; // E
+    
+#if LCD_INTERFACE != MODE_SERIAL
+    SET_BIT(LCD_MODE_PORT, LCD_MODE_PIN);
+#else
+    CLR_BIT(LCD_MODE_PORT, LCD_MODE_PIN);
+#endif
+            
+    delay_ms(50);
     LCD_write_command(0x33);
-    _delay_ms(1);
+    delay_ms(1);
     LCD_write_command(0x32);
-    _delay_ms(1);
+    delay_ms(1);
 #if LCD_INTERFACE == MODE_4BIT
     LCD_write_command(0x28);
-    _delay_ms(1);
+    delay_ms(1);
     LCD_write_command(0x28);
-    _delay_ms(1);
+    delay_ms(1);
 #endif
     LCD_write_command(0x08);
-    _delay_ms(1);
+    delay_ms(1);
     LCD_write_command(0x10);
-    _delay_ms(1);
+    delay_ms(1);
     LCD_write_command(0x0C);
-    _delay_ms(1);
+    delay_ms(1);
     LCD_write_command(0x01);
-    _delay_ms(10);
+    delay_ms(10);
     LCD_write_command(0x06);
-    _delay_ms(10);
+    delay_ms(10);
 }
 
 void LCD_write_command(unsigned char command)
@@ -56,7 +50,7 @@ void LCD_write_command(unsigned char command)
 #else
     LCD_CMD_MODE();   //RS=0
     LCD_write_byte(command);
-    _delay_ms(1);
+    delay_ms(1);
 #endif
 }
 
@@ -65,7 +59,7 @@ void LCD_write_data(unsigned char data)
 #if LCD_INTERFACE == MODE_SERIAL
     CLR_BIT(LCD_SCLK_PORT, LCD_SCLK_PIN);
     LCD2_spi_write_byte(0xfa);
-    asm("nop");
+    Nop();
     LCD2_spi_write_byte_standard(data);
 #else
     LCD_DATA_MODE();    //RS=1
@@ -83,9 +77,9 @@ void LCD_write_byte(unsigned char data)
     LCD_DATA_PORT = data;
     LCD_RW_LOW();
     LCD_EN_HIGH();
-    _delay_us(10);
+    delay_us(10);
     LCD_EN_LOW();
-    _delay_us(10);
+    delay_us(10);
     LCD_RW_HIGH();
 #endif
 }
@@ -114,9 +108,9 @@ void LCD_write_half_byte(unsigned char half_byte)
     
     LCD_RW_LOW();
     LCD_EN_HIGH();
-    _delay_us(10);
+    delay_us(10);
     LCD_EN_LOW();
-    _delay_us(10); 
+    delay_us(10); 
     LCD_RW_HIGH();
 }
 
@@ -176,9 +170,9 @@ unsigned char LCD_read_byte(void)
     LCD_RW_HIGH();
     
     LCD_EN_LOW();
-    _delay_us(10);
+    delay_us(10);
     LCD_EN_HIGH();
-    _delay_us(10);
+    delay_us(10);
 
     data = LCD_DATA_PIN;
     LCD_EN_LOW();
@@ -231,7 +225,7 @@ void LCD_clear(void)
 {
     unsigned char x, y;
     LCD_write_command(0x08);
-    _delay_us(100);
+    delay_us(100);
     LCD_write_command(0x01);
 
     LCD_startGraphic();
@@ -248,7 +242,7 @@ void LCD_clear(void)
     LCD_endGraphic();
 
     LCD_write_command(0x0C);  //???
-    _delay_ms(10);
+    delay_ms(10);
 }
 
 void LCD_startGraphic(void)
@@ -306,7 +300,7 @@ void LCD_write_char(unsigned int rowCol, unsigned int code)
     LCD_write_data(low);
 }
 
-void LCD_write_string(unsigned int rowCol, const char * p)
+void LCD_write_string(unsigned int rowCol, const char *p)
 {
     LCD_set_text_address(rowCol);
     while (*p != 0)

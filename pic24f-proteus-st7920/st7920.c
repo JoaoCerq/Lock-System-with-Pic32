@@ -1,15 +1,20 @@
 #include <xc.h>
 #include "st7920.h"
+#include "timer1.h"
 
 void LCD_init(void)
 {
     LCD_DATA_DDR_OUTPUT();
-    TRISF = 0x00;
-    LATF = 0x00;
-    
-    LATFbits.LATF1 = 1; // RS
-    LATFbits.LATF4 = 1; // RST
-    LATFbits.LATF3 = 1; // E
+    LCD_RS_OUTPUT();
+    LCD_EN_OUTPUT();
+    LCD_RW_OUTPUT();
+    LCD_MODE_OUTPUT();
+    LCD_RST_OUTPUT();
+            
+    SET_BIT(LCD_RS_PORT, LCD_RS_PIN);
+    SET_BIT(LCD_EN_PORT, LCD_EN_PIN);
+    CLR_BIT(LCD_RW_PORT, LCD_RW_PIN);
+    SET_BIT(LCD_RST_PORT, LCD_RST_PIN);
     
 #if LCD_INTERFACE != MODE_SERIAL
     SET_BIT(LCD_MODE_PORT, LCD_MODE_PIN);

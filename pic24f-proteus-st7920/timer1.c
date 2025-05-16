@@ -1,6 +1,7 @@
 #include <xc.h>
+#include "timer1.h"
 
-// Suponha que seu Fcy = 16MHz (Fosc = 32MHz com PLL /2), então 1 ciclo = 62,5ns
+// Suponha que seu Fcy = 16MHz (Fosc = 32MHz com PLL /2), entï¿½o 1 ciclo = 62,5ns
 void timer1_init() {
     T1CONbits.TON = 0;     // Desliga o timer
     T1CONbits.TCS = 0;     // Clock interno (Fcy)
@@ -8,9 +9,9 @@ void timer1_init() {
     T1CONbits.TCKPS = 0b01; // Prescaler 1:8
 
     TMR1 = 0x0000;         // Zera o timer
-    PR1 = 0xFFFF;          // Valor máximo (ajustaremos nas funções de delay)
+    PR1 = 0xFFFF;          // Valor mï¿½ximo (ajustaremos nas funï¿½ï¿½es de delay)
 
-    IFS0bits.T1IF = 0;     // Limpa flag de interrupção
+    IFS0bits.T1IF = 0;     // Limpa flag de interrupï¿½ï¿½o
     T1CONbits.TON = 1;     // Liga o timer
 }
 

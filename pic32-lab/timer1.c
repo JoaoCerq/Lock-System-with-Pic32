@@ -1,5 +1,5 @@
-#include "timer1.h"
 #include <xc.h>
+#include "timer1.h"
 
 // Suponha que seu Fcy = 16MHz (Fosc = 32MHz com PLL /2), então 1 ciclo = 62,5ns
 void timer1_init() {

@@ -1,9 +1,9 @@
-#include "config.h"
-#include "st7920.h"
-#include "timer1.h"
 #include <xc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "config.h"
+#include "st7920.h"
+#include "timer1.h"
 
 #define DEBUG_LED      LATEbits.LATE0
 #define OUTPUT         0x0000

@@ -342,3 +342,63 @@ void LCD_write_dot(unsigned char x, unsigned char y)
     LCD_endGraphic();
 }
 #endif
+
+void LCD_write_input(const char *input)
+{
+    LCD_write_string(0x0200, input);
+}
+
+void LCD_write_output(const char *output)
+{
+    LCD_write_string(0x0300, output);
+}
+
+// 1 = diga o que quer fazer (entrar na sala ou cadastrar novo user)
+// 2 = insira login (para entrar na sala)
+// 3 = insira senha (para entrar na sala)
+// 4 = insira login (para cadastrar usuário)
+// 5 = insira senha (para cadastrar usuário)
+// 6 = insira se usuário para criar é comum ou admin
+// 7 = insira login (do usuário a cadastrar)
+// 8 = insira senha (do usuário a cadastrar)
+void LCD_update_state(unsigned int current_state)
+{
+    switch (current_state) {
+        case 1:
+            LCD_write_string(0x0000, "(1) digite o");
+            LCD_write_string(0x0100, "comando");
+            break;
+        case 2:
+            LCD_write_string(0x0000, "(2) digite o");
+            LCD_write_string(0x0100, "login");
+            break;
+        case 3:
+            LCD_write_string(0x0000, "(3) digite a");
+            LCD_write_string(0x0100, "senha");
+            break;
+        case 4:
+            LCD_write_string(0x0000, "(4) digite o");
+            LCD_write_string(0x0100, "login");
+            break;
+        case 5:
+            LCD_write_string(0x0000, "(5) digite a");
+            LCD_write_string(0x0100, "senha");
+            break;
+        case 6:
+            LCD_write_string(0x0000, "(6) insira o");
+            LCD_write_string(0x0100, "cargo");
+            break;
+        case 7:
+            LCD_write_string(0x0000, "(7) digite o");
+            LCD_write_string(0x0100, "login");
+            break;
+        case 8:
+            LCD_write_string(0x0000, "(8) digite a");
+            LCD_write_string(0x0100, "senha");
+            break;
+        default:
+            LCD_write_string(0x0000, "estado");
+            LCD_write_string(0x0100, "desconhecido");
+            break;
+    }
+}

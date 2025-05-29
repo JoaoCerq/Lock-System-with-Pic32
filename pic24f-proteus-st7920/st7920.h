@@ -5,7 +5,7 @@
 #define MODE_4BIT       4
 #define MODE_SERIAL     1
 
-#define LCD_INTERFACE   MODE_SERIAL
+#define LCD_INTERFACE   MODE_8BIT
 
 #define LCD_DATA_DDR     TRISD
 #define LCD_DATA_PIN     PORTD
@@ -82,6 +82,10 @@ void LCD_write_string(unsigned int rowCol, const char * p);
 #if LCD_INTERFACE != MODE_SERIAL
 void LCD_write_dot(unsigned char x, unsigned char y);
 #endif
+
+void LCD_update_state(unsigned int current_state);
+void LCD_write_input(const char *input);
+void LCD_write_output(const char *output);
 
 #define BYTE_BIT(bitno) (1 << (bitno))
 #define TEST_BIT(value, bitno) ((1 << (bitno)) & (value))

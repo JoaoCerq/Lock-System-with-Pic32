@@ -6,8 +6,16 @@
 #include "timer1.h"
 
 #define DEBUG_LED      LATEbits.LATE0
-#define OUTPUT         0x0000
-#define INPUT          0x0302
+
+// 1 = diga o que quer fazer (entrar na sala ou cadastrar novo user)
+// 2 = insira login (para entrar na sala)
+// 3 = insira senha (para entrar na sala)
+// 4 = insira login (para cadastrar usu�rio)
+// 5 = insira senha (para cadastrar usu�rio)
+// 6 = insira se usu�rio para criar � comum ou admin
+// 7 = insira login (do usu�rio a cadastrar)
+// 8 = insira senha (do usu�rio a cadastrar)
+unsigned int global_state = 3;
 
 int main() {
     TRISEbits.TRISE0 = 0x00;
@@ -16,30 +24,9 @@ int main() {
     timer1_init();
     LCD_init();
     LCD_clear();
-
-    #if LCD_INTERFACE != MODE_SERIAL
-        unsigned char x, y;
-    #endif
-    
-    #if LCD_INTERFACE != MODE_SERIAL
-        for (x = 31 - 3; x <= 112 + 3; x++)
-        {
-            LCD_write_dot(x, 16 - 3);
-            LCD_write_dot(x, 31 + 3);
-            //_delay_us(100);
-        }
-        for (y = 16 - 3; y <= 31 + 3; y++)
-        {
-            LCD_write_dot(31 - 3, y);
-            LCD_write_dot(112 + 3, y);
-            //_delay_us(100);
-        }
-    #endif
-    delay_ms(200);
-    
-    LCD_write_string(0x0300, "In:");
-    LCD_write_string(OUTPUT, "output");
-    LCD_write_string(INPUT, "1234");
+    LCD_update_state(global_state);
+    LCD_write_input("1234");
+    LCD_write_output("sucesso!");
     
     while (1) {
     }

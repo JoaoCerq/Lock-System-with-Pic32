@@ -83,6 +83,10 @@ void LCD_write_string(unsigned int rowCol, const char * p);
 void LCD_write_dot(unsigned char x, unsigned char y);
 #endif
 
+void LCD_update_state(unsigned int current_state);
+void LCD_write_input(const char *input);
+void LCD_write_output(const char *output);
+
 #define BYTE_BIT(bitno) (1 << (bitno))
 #define TEST_BIT(value, bitno) ((1 << (bitno)) & (value))
 #define SET_BIT(value, bitno)  ((value) |= (1 << (bitno)))

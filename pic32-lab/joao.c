@@ -56,6 +56,7 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
         }
         scan_position <<= 1;
     }
+    oldG = newG;
     IFS1CLR = _IFS1_CNIF_MASK; //Clears the flag
     IEC1SET = _IEC1_CNIE_MASK; //enables the interruption again
 }

@@ -4,6 +4,7 @@
 #include "config.h"
 #include "st7920.h"
 #include "timer1.h"
+#include "keyboard.c"
 
 #define DEBUG_LED      LATEbits.LATE0
 
@@ -27,6 +28,7 @@ int main() {
     LCD_update_state(global_state);
     LCD_write_input("1234");
     LCD_write_output("sucesso!");
+    Enable_keyboard();
     
     while (1) {
     }

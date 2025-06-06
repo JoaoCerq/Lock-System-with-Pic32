@@ -61,9 +61,38 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
         }
         scan_position <<= 1;
     }
+    Keyboard_actions(const char* key);
     oldG = newG;
     IFS1CLR = _IFS1_CNIF_MASK; //Clears the flag
     IEC1SET = _IEC1_CNIE_MASK; //enables the interruption again
+}
+
+void Keyboard_actions(const char* key){
+	int input_password = 0;
+	int input_current_size = 0;
+	int char_to_int = 0;
+	bool password_match = FALSE;
+	if (input_current_size == 4){
+		password_match = Search_password(input_password);
+	}
+	if (*key > '0' and *key < '9'){
+		input_password += input_password + Read_input(key, input_current_size);
+		input_current_size += 1;
+	}
+
+}
+
+int Read_input(const char* key, int input_current_size){
+	
+	return (key - 48)*10**(4-input_current_size) 
+	
+}
+
+
+
+bool Search_password(int input_password){
+	// TODO: Busca na memória. POr enquanto, um único fixo
+	if(input_password == 0001)
 }
 
 const char* Key(unsigned int row, unsigned int column){

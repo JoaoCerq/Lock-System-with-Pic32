@@ -8,11 +8,18 @@
 #include <xc.h>
 #include <sys/attribs.h>
 #include "timer1.h"
-#pragma config FWDTEN = OFF 
+#include <stdbool.h> 
+#include <string.h>
 
 void Keyboard_Configs(void);
 const char* Key(unsigned int row, unsigned int column);
+void Keyboard_actions(const char* key);
+bool Search_password(int input_password);
+int Read_input(const char* key);
+void Int_to_string(int input_password, char* input);
 
+extern volatile unsigned int input_current_size;
+extern volatile char input_password_char[5];
 volatile unsigned int oldG, newG = 0; // used in CN interruptions!!!! We need to mantain the snapshot register up-to-date
 
 // colunas - > inputs;
@@ -46,6 +53,7 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
     unsigned int detected_row = 0;
     unsigned int detected_column = 0;
     unsigned int temp = 00;
+    const char* key = "";
     for (unsigned int row = 0; row < 5; row++){ // we need to test all five possibiities
         LATA = (LATA & ~0x1F) | (0x1F & ~scan_position); // scan all bits
         // __delay_ms(1); // TODO: DEBOUNCER
@@ -56,44 +64,63 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
                 detected_column ++;
             }
             detected_row = row;
-            const char* key = Key(detected_row, detected_column);
+            key = Key(detected_row, detected_column);
             break;
         }
         scan_position <<= 1;
     }
-    Keyboard_actions(const char* key);
+    Keyboard_actions(key);
     oldG = newG;
     IFS1CLR = _IFS1_CNIF_MASK; //Clears the flag
     IEC1SET = _IEC1_CNIE_MASK; //enables the interruption again
 }
 
 void Keyboard_actions(const char* key){
-	int input_password = 0;
-	int input_current_size = 0;
-	int char_to_int = 0;
-	bool password_match = FALSE;
+	bool password_match = false;
 	if (input_current_size == 4){
-		password_match = Search_password(input_password);
+        int input_password_int = Char_to_int(input_password_char)
+		password_match = Search_password(input_password_int);
+        if (password_match){
+            //TODO: ABRIR A FECHADURA
+        }
+        LCD_write_input("1234");
 	}
-	if (*key > '0' and *key < '9'){
-		input_password += input_password + Read_input(key, input_current_size);
+	else if (*key > '0' && *key < '9'){
+		input_password_char[input_current_size] = input_password_char;
 		input_current_size += 1;
+        char input[5];
+        Int_to_string(input_password_char, input);
 	}
 
 }
 
-int Read_input(const char* key, int input_current_size){
-	
-	return (key - 48)*10**(4-input_current_size) 
-	
+void Int_to_string(int input_password, char* input){
+    for (int i = 0; i < 5; i++){
+        
+    }
+}
+
+int Char_to_int(const char* input_char){
+    int temp_int = 0;
+    int factor = 1000;
+    for (int j = 0; j < 4 ; j++){
+        temp_int += input_char[j]*factor
+        factor /= 10;
+    }
+	return temp_int;	
 }
 
 
 
 bool Search_password(int input_password){
 	// TODO: Busca na memória. POr enquanto, um único fixo
-	if(input_password == 0001)
+	if(input_password == 0001){
+        return true;
+    }
+    return false;
 }
+
+
 
 const char* Key(unsigned int row, unsigned int column){
     const char* KeyMatrix[5][4] = {

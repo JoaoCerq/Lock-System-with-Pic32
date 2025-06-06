@@ -17,11 +17,12 @@
 // 7 = insira login (do usuário a cadastrar)
 // 8 = insira senha (do usuário a cadastrar)
 unsigned int global_state = 3;
+unsigned volatile int input_current_size = 0;
+volatile char input_password_char[5] = "";
 
 int main() {
     TRISEbits.TRISE0 = 0x00;
     DEBUG_LED = 1;
-    
     timer1_init();
     LCD_init();
     LCD_clear();

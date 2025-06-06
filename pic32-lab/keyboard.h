@@ -14,8 +14,9 @@
 void Keyboard_Configs(void);
 int Enable_keyboard(void);
 void Keyboard_actions(const char* key);
-int Read_input(const char* key, int input_current_size);
 bool Search_password(int input_password);
 const char* Key(unsigned int row, unsigned int column);
+int Char_to_int(const char* input_char);
+bool Search_password(int input_password);
 
 #endif // KEYBOARD_H

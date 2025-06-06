@@ -12,19 +12,19 @@
 #include <string.h>
 
 void Keyboard_Configs(void);
-const char* Key(unsigned int row, unsigned int column);
 void Keyboard_actions(const char* key);
+int Char_to_int(const char* input_char);
 bool Search_password(int input_password);
-int Read_input(const char* key);
-void Int_to_string(int input_password, char* input);
+const char* Key(unsigned int row, unsigned int column);
 
 extern volatile unsigned int input_current_size;
-extern volatile char input_password_char[5];
+extern volatile int input_password_int;
+extern volatile char asterisk[5];
 volatile unsigned int oldG, newG = 0; // used in CN interruptions!!!! We need to mantain the snapshot register up-to-date
 
 // colunas - > inputs;
 // linhas -> outputs; vamos mudá-las e pegar o resultado a partir das colunas
-int Enable_keyboard(void){
+void Enable_keyboard(void){
     INTCONSET = _INTCON_MVEC_MASK;
     __builtin_enable_interrupts();
     Keyboard_Configs();
@@ -47,6 +47,7 @@ void Keyboard_Configs(void){
 void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
     IEC1CLR = _IEC1_CNIE_MASK; // Disables new interruptions
     delay_ms(100);
+    LCD_write_output("teste_ISR");
     newG = PORTG; // Thats important, so we can update the snapshot
     LATASET = 0x1F; // Lets reset them to 1, therefore we can scan 
     unsigned int scan_position = 0x00000001;
@@ -56,7 +57,6 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
     const char* key = "";
     for (unsigned int row = 0; row < 5; row++){ // we need to test all five possibiities
         LATA = (LATA & ~0x1F) | (0x1F & ~scan_position); // scan all bits
-        // __delay_ms(1); // TODO: DEBOUNCER
         temp = (~newG & 0x000003C0) >> 6; //bitmask 0000_0000_0000_0000_0000_0011_1100_0000. Remember: Those registers are pull-up!
         if (temp){ 
             detected_column = 0;
@@ -76,40 +76,59 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
 }
 
 void Keyboard_actions(const char* key){
-	bool password_match = false;
 	if (input_current_size == 4){
-        int input_password_int = Char_to_int(input_password_char)
-		password_match = Search_password(input_password_int);
-        if (password_match){
-            //TODO: ABRIR A FECHADURA
+        if (Search_password(input_password_int)){
+            LCD_write_output("opened");
         }
-        LCD_write_input("1234");
+        else{
+            LCD_write_output("wrong pw");
+        }
+        input_current_size = 0;
+        for (int i = 0; i < 4; i++){
+            asterisk[i] = ' ';
+        }
+        asterisk[4] = '\0';
+        input_password_int = -1; // an impossible password to match
 	}
-	else if (*key > '0' && *key < '9'){
-		input_password_char[input_current_size] = input_password_char;
-		input_current_size += 1;
-        char input[5];
-        Int_to_string(input_password_char, input);
-	}
-
-}
-
-void Int_to_string(int input_password, char* input){
-    for (int i = 0; i < 5; i++){
+    else if (input_current_size < 4){
+        if (*key > '0' && *key < '9'){
+            input_password_int = input_password_int*10 + (*key - '0');
+            asterisk[input_current_size] = '*';
+            input_current_size += 1;
+            LCD_write_input(asterisk);
+        }
+        if (*key == '#'){
+            char input_password_char[5] = "";
+            LCD_write_input(input_password_char);
+        }
+    }
+    else{
         
     }
+
 }
 
 int Char_to_int(const char* input_char){
     int temp_int = 0;
     int factor = 1000;
     for (int j = 0; j < 4 ; j++){
-        temp_int += input_char[j]*factor
+        temp_int += (input_char[j] - '0')*factor;
         factor /= 10;
     }
 	return temp_int;	
 }
 
+void Int_to_char(int input_integer, char* result_char){
+    int den = 1000;
+    int algarism = 0;
+    for (int i = 0; i < 4; i++){
+        algarism = input_integer/den;
+        input_integer = algarism*den; 
+        den /= 10;
+        result_char[i] = '0' + algarism;
+    }
+    result_char[4] = '\0';
+}
 
 
 bool Search_password(int input_password){

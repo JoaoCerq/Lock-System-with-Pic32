@@ -1,6 +1,6 @@
 /**************************************************************
  * File:    keyboard.c
- * Author:  João Pedro Cerqueira
+ * Author:  Joao Pedro Cerqueira
  * Date:    2025-06-06
  * Brief:   Implementation of matrix keyboard reading with
  *          Change Notification (CN) interrupts for PIC32.
@@ -10,17 +10,12 @@
 #include "timer1.h"
 #include <stdbool.h> 
 #include <string.h>
-
-void Keyboard_Configs(void);
-void Keyboard_actions(const char* key);
-int Char_to_int(const char* input_char);
-bool Search_password(int input_password);
-const char* Key(unsigned int row, unsigned int column);
+#include "keyboard.h"
 
 extern volatile unsigned int input_current_size;
 extern volatile int input_password_int;
 extern volatile char asterisk[5];
-volatile unsigned int oldG, newG = 0; // used in CN interruptions!!!! We need to mantain the snapshot register up-to-date
+volatile unsigned int oldG, newG; // used in CN interruptions!!!! We need to mantain the snapshot register up-to-date
 
 // colunas - > inputs;
 // linhas -> outputs; vamos mudá-las e pegar o resultado a partir das colunas
@@ -35,7 +30,7 @@ void Keyboard_Configs(void){
     TRISGSET = 0x3C0; // bitmask to define RG6, 7, 8, 9 as INPUTS (FOUR keyboard columns) 0000_0000_0000_0000_0000_0011_1100_0000
     LATACLR = 0x1F; // first, lets set all rows to 0. 1111_1111_1111_1111_1111_1111_1110_0000
     CNCONSET = _CNCON_ON_MASK; // turns CN on
-    oldG = PORTF;
+    oldG = PORTG;
     CNENSET = 0xF00; //Enable CN function on "1" pins  0000_0000_0000_0000_0000_1111_0000_0000
     CNPUESET = 0xF00; //enable pull-up on the respective pins 
     IPC6bits.CNIP = 3; // set priority and sub-priority
@@ -57,6 +52,7 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL3SOFT) KeyBoardInterrupt(void){
     const char* key = "";
     for (unsigned int row = 0; row < 5; row++){ // we need to test all five possibiities
         LATA = (LATA & ~0x1F) | (0x1F & ~scan_position); // scan all bits
+        delay_ms(1);
         temp = (~newG & 0x000003C0) >> 6; //bitmask 0000_0000_0000_0000_0000_0011_1100_0000. Remember: Those registers are pull-up!
         if (temp){ 
             detected_column = 0;
@@ -91,7 +87,7 @@ void Keyboard_actions(const char* key){
         input_password_int = -1; // an impossible password to match
 	}
     else if (input_current_size < 4){
-        if (*key > '0' && *key < '9'){
+        if (*key >= '0' && *key <= '9'){
             input_password_int = input_password_int*10 + (*key - '0');
             asterisk[input_current_size] = '*';
             input_current_size += 1;
@@ -99,6 +95,7 @@ void Keyboard_actions(const char* key){
         }
         if (*key == '#'){
             char input_password_char[5] = "";
+            Int_to_char(input_password_int , input_password_char);
             LCD_write_input(input_password_char);
         }
     }
@@ -133,7 +130,7 @@ void Int_to_char(int input_integer, char* result_char){
 
 bool Search_password(int input_password){
 	// TODO: Busca na memória. POr enquanto, um único fixo
-	if(input_password == 0001){
+	if(input_password == 1){
         return true;
     }
     return false;
